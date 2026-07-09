@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speed Typer — Typing Game</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #1a1d27;
+    --text: #e8eaf0;
+    --dim: #6b7185;
+    --accent: #7aa2f7;
+    --correct: #9ece6a;
+    --wrong: #f7768e;
+    --wrong-bg: rgba(247, 118, 142, 0.18);
+    --caret: #7aa2f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "SF Mono", "Cascadia Code", "Fira Code", Consolas, monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  .stats {
+    display: flex;
+    gap: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .stat { text-align: center; }
+  .stat .value {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--dim);
+    margin-top: 0.2rem;
+  }
+  #board {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 800px;
+    width: 100%;
+    font-size: 1.35rem;
+    line-height: 2.2rem;
+    letter-spacing: 0.02em;
+    cursor: text;
+    outline: none;
+    user-select: none;
+    position: relative;
+  }
+  #board:focus { box-shadow: 0 0 0 2px var(--accent); }
+  #board.blurred::after {
+    content: "Click here or press any key to start typing";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 17, 23, 0.82);
+    backdrop-filter: blur(3px);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 1rem;
+  }
+  #text span { color: var(--dim); border-radius: 3px; }
+  #text span.correct { color: var(--correct); }
+  #text span.wrong { color: var(--wrong); background: var(--wrong-bg); }
+  #text span.current {
+    background: var(--caret);
+    color: var(--bg);
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { background: transparent; color: var(--dim); } }
+  .controls {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    align-items: center;
+  }
+  button, select {
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid #2a2e3d;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  button:hover, select:hover { border-color: var(--accent); }
+  #result {
+    margin-top: 1.5rem;
+    text-align: center;
+    min-height: 3rem;
+  }
+  #result .headline {
+    font-size: 1.3rem;
+    color: var(--correct);
+    font-weight: 700;
+  }
+  #result .sub { color: var(--dim); font-size: 0.9rem; margin-top: 0.3rem; }
+  .hint { color: var(--dim); font-size: 0.75rem; margin-top: 1rem; }
+  kbd {
+    background: var(--panel);
+    border: 1px solid #2a2e3d;
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.75rem;
+  }
+</style>
+</head>
+<body>
+  <h1>⌨ SPEED TYPER</h1>
+
+  <div class="stats">
+    <div class="stat"><div class="value" id="wpm">0</div><div class="label">WPM</div></div>
+    <div class="stat"><div class="value" id="accuracy">100%</div><div class="label">Accuracy</div></div>
+    <div class="stat"><div class="value" id="timer">60</div><div class="label">Seconds</div></div>
+  </div>
+
+  <div id="board" tabindex="0" class="blurred">
+    <div id="text"></div>
+  </div>
+
+  <div class="controls">
+    <select id="duration">
+      <option value="15">15s</option>
+      <option value="30">30s</option>
+      <option value="60" selected>60s</option>
+      <option value="120">120s</option>
+    </select>
+    <button id="restart">Restart</button>
+  </div>
+
+  <div id="result"></div>
+  <div class="hint">Press <kbd>Tab</kbd> or click Restart for a new round. Best WPM this session: <span id="best">—</span></div>
+
+<script>
+(() => {
+  const WORDS = (
+    "the quick brown fox jumps over lazy dog and runs through green fields " +
+    "time people way water long little world own place right small large " +
+    "great hand life work part child eye woman number point home read need " +
+    "land different move try kind picture again change play spell air away " +
+    "animal house letter mother answer found study still learn should world " +
+    "high every near add food between below country plant last school father " +
+    "keep tree never start city earth thought head under story example begin " +
+    "paper group always music those both mark often until mile river car feet " +
+    "care second book carry took science eat room friend began idea fish " +
+    "mountain stop once base hear horse cut sure watch color face wood main " +
+    "open seem together next white children got walk sea grow river four " +
+    "state hard early light real light almost above girl sometimes young " +
+    "talk soon list song being leave family body music color question"
+  ).split(/\s+/);
+
+  const textEl = document.getElementById("text");
+  const boardEl = document.getElementById("board");
+  const wpmEl = document.getElementById("wpm");
+  const accEl = document.getElementById("accuracy");
+  const timerEl = document.getElementById("timer");
+  const resultEl = document.getElementById("result");
+  const restartBtn = document.getElementById("restart");
+  const durationSel = document.getElementById("duration");
+  const bestEl = document.getElementById("best");
+
+  let chars = [];        // span elements
+  let target = "";       // the full text to type
+  let pos = 0;           // current index into target
+  let typedTotal = 0;    // total keystrokes (excluding backspace)
+  let typedCorrect = 0;  // correct keystrokes
+  let startTime = null;
+  let duration = 60;
+  let timeLeft = 60;
+  let tick = null;
+  let finished = false;
+  let bestWpm = 0;
+
+  function generateText(wordCount) {
+    const out = [];
+    for (let i = 0; i < wordCount; i++) {
+      out.push(WORDS[Math.floor(Math.random() * WORDS.length)]);
+    }
+    return out.join(" ");
+  }
+
+  function render() {
+    textEl.innerHTML = "";
+    chars = [];
+    for (const ch of target) {
+      const span = document.createElement("span");
+      span.textContent = ch;
+      textEl.appendChild(span);
+      chars.push(span);
+    }
+    if (chars.length) chars[0].classList.add("current");
+  }
+
+  function reset() {
+    clearInterval(tick);
+    tick = null;
+    duration = parseInt(durationSel.value, 10);
+    timeLeft = duration;
+    pos = 0;
+    typedTotal = 0;
+    typedCorrect = 0;
+    startTime = null;
+    finished = false;
+    // Enough words that a fast typist won't run out (~250 wpm ceiling)
+    target = generateText(Math.max(50, Math.ceil(duration * 5)));
+    render();
+    wpmEl.textContent = "0";
+    accEl.textContent = "100%";
+    timerEl.textContent = timeLeft;
+    resultEl.innerHTML = "";
+    boardEl.focus();
+  }
+
+  function currentWpm() {
+    if (!startTime) return 0;
+    const minutes = (Date.now() - startTime) / 60000;
+    if (minutes <= 0) return 0;
+    // Standard WPM: correct characters / 5 per minute
+    return Math.round((typedCorrect / 5) / minutes);
+  }
+
+  function updateStats() {
+    wpmEl.textContent = currentWpm();
+    accEl.textContent = typedTotal === 0
+      ? "100%"
+      : Math.round((typedCorrect / typedTotal) * 100) + "%";
+  }
+
+  function startTimer() {
+    startTime = Date.now();
+    tick = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = timeLeft;
+      updateStats();
+      if (timeLeft <= 0) finish();
+    }, 1000);
+  }
+
+  function finish() {
+    clearInterval(tick);
+    tick = null;
+    finished = true;
+    const wpm = currentWpm();
+    const acc = typedTotal === 0 ? 100 : Math.round((typedCorrect / typedTotal) * 100);
+    if (wpm > bestWpm) {
+      bestWpm = wpm;
+      bestEl.textContent = bestWpm + " WPM";
+    }
+    resultEl.innerHTML =
+      '<div class="headline">' + wpm + " WPM</div>" +
+      '<div class="sub">' + acc + "% accuracy · " + typedCorrect +
+      " correct / " + typedTotal + " typed characters</div>";
+  }
+
+  boardEl.addEventListener("keydown", (e) => {
+    if (e.key === "Tab") { e.preventDefault(); reset(); return; }
+    if (finished) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+    if (e.key === "Backspace") {
+      e.preventDefault();
+      if (pos > 0) {
+        chars[pos].classList.remove("current");
+        pos--;
+        chars[pos].classList.remove("correct", "wrong");
+        chars[pos].classList.add("current");
+      }
+      return;
+    }
+
+    if (e.key.length !== 1) return; // ignore Shift, arrows, F-keys, etc.
+    e.preventDefault();
+
+    if (!startTime) startTimer();
+
+    typedTotal++;
+    const expected = target[pos];
+    if (e.key === expected) {
+      typedCorrect++;
+      chars[pos].classList.add("correct");
+    } else {
+      chars[pos].classList.add("wrong");
+    }
+    chars[pos].classList.remove("current");
+    pos++;
+
+    if (pos >= target.length) { finish(); return; }
+    chars[pos].classList.add("current");
+    chars[pos].scrollIntoView({ block: "nearest" });
+    updateStats();
+  });
+
+  boardEl.addEventListener("focus", () => boardEl.classList.remove("blurred"));
+  boardEl.addEventListener("blur", () => boardEl.classList.add("blurred"));
+  restartBtn.addEventListener("click", reset);
+  durationSel.addEventListener("change", reset);
+
+  reset();
+})();
+</script>
+</body>
+</html>
