@@ -38,3 +38,19 @@ python3 q.py | diff - q.py   # no difference
 ```
 
 Requires Python 3.8+. No dependencies.
+
+## Bonus: BOSS FIGHT — Jerry, the Possessed Snowman
+
+A zero-dependency terminal boss battle. Full backstory in [LORE.md](LORE.md);
+the short version:
+
+1. Jerry got possessed by the Hollow Soul.
+2. We kill the soul (aim for the dark shard — NOT Jerry).
+3. Jerry happy.
+4. Jerry is ⬆️.
+
+```sh
+python3 boss_jerry.py            # interactive fight
+python3 boss_jerry.py --auto     # watches itself win, no input needed
+python3 boss_jerry.py --seed 7   # deterministic RNG
+```
