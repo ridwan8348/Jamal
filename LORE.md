@@ -51,12 +51,18 @@ Jerry is happy.
 
 ## Chapter VI — Jerry Is ⬆️
 
-Freed of the Hollow Soul, Jerry becomes lighter than snowfall. On the first
-clear night after the battle, he drifts gently up off Frostfall Hill —
-scarf fluttering, hat held on with one stick hand — and ascends into the
-winter sky.
+Look at any picture of the battle. The huge possessed monster fills the
+frame, all icicle grin and root-tentacles — but check the **top of the
+picture**. That little snowman up there, three snowballs tall, crooked
+carrot nose, top hat straightened? That's Jerry. The original.
 
-The villagers say that when snow falls on Frostfall Hill, it's Jerry,
-waving down at absolutely everyone.
+After the Hollow Soul was destroyed, Jerry waddled straight back up to his
+spot at the very top of Frostfall Hill — the same spot the village kids
+always build him in, the highest point on the hill, top of every picture
+ever taken of it.
 
-**Jerry is ⬆️.**
+So whenever anyone shows you the battle: the monster is in front, but
+Jerry — the real Jerry, the happy Jerry — is up top, smiling at absolutely
+everyone.
+
+**Jerry is ⬆️. (Up there. Top of the picture.)**

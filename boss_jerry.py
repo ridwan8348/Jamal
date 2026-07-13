@@ -7,7 +7,7 @@ The lore, short version:
     Jerry got possessed by the Hollow Soul.
     We kill the soul (NOT Jerry -- aim for the dark shard on his chest).
     Jerry happy.
-    Jerry is UP -- he ascends into the winter sky.
+    Jerry is UP -- back at his spot at the top of the picture.
 
 Play it:
     python3 boss_jerry.py            # interactive fight
@@ -68,17 +68,20 @@ FREE_JERRY = r"""
              JERRY (HAPPY)
 """
 
-ASCENDED_JERRY = r"""
-      *  .    ___    .   *
-         .   |___|      .
-       *    _|___|_   *
-           /  ^ ^  \       .
-     .    |    >    |   *
-           \  \_/  / .
-        ~( snowflake )~   *
-      .     \     /
-             '---'      .
-        JERRY IS UP  ^
+JERRY_UP_TOP = r"""
+        ___
+       |___|
+      _|___|_
+     /  o o  \     <- THAT'S JERRY, UP THERE
+     |   >   |        (top of the picture,
+      \ \_/ /          where he's always been)
+    ~(snowflake)~
+      (  o  )
+     /~~~~~~~\__
+    /           \____
+   /   Frostfall     \______
+  /       Hill              \______
+ /___________________________________\
 """
 
 
@@ -277,15 +280,16 @@ def ending() -> None:
     say("at absolutely everyone.")
 
     banner("JERRY IS UP")
-    say(ASCENDED_JERRY, pause=0)
-    say("Freed of the Hollow Soul, Jerry is lighter than snowfall.")
-    say("Scarf fluttering, hat held on with one stick hand,")
-    say("he drifts gently up off Frostfall Hill and into the sky.")
+    say(JERRY_UP_TOP, pause=0)
+    say("Jerry waddles straight back UP to his spot at the very top")
+    say("of Frostfall Hill -- the highest point, top of every picture")
+    say("anyone has ever taken of it.")
     say("")
-    say("When snow falls on Frostfall Hill, that's Jerry --")
-    say("waving down at absolutely everyone.")
+    say("So when they show you the battle: monster in front,")
+    say("but Jerry -- the real, happy Jerry -- is up top,")
+    say("smiling at absolutely everyone.")
     say("")
-    say("            J E R R Y   I S   ^ UP ^")
+    say("      J E R R Y   I S   ^ UP THERE ^")
     say("")
 
 

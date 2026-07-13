@@ -47,10 +47,13 @@ the short version:
 1. Jerry got possessed by the Hollow Soul.
 2. We kill the soul (aim for the dark shard — NOT Jerry).
 3. Jerry happy.
-4. Jerry is ⬆️.
+4. Jerry is ⬆️ — back at his spot at the top of the picture.
 
 ```sh
 python3 boss_jerry.py            # interactive fight
 python3 boss_jerry.py --auto     # watches itself win, no input needed
 python3 boss_jerry.py --seed 7   # deterministic RNG
 ```
+
+No terminal? Open [`play_jerry.html`](play_jerry.html) in any browser —
+same fight, same lore, big tap-friendly buttons.
