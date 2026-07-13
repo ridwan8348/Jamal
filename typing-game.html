@@ -155,6 +155,12 @@
     color: var(--bg);
     animation: blink 1s step-end infinite;
   }
+  #text.challenge { word-break: break-all; }
+  #text span.current.flash {
+    background: var(--wrong);
+    color: #fff;
+    animation: none;
+  }
   @keyframes blink { 50% { background: transparent; color: var(--dim); } }
   @media (prefers-reduced-motion: reduce) {
     #text span.current { animation: none; }
@@ -187,6 +193,8 @@
     color: var(--correct);
     font-weight: 700;
   }
+  #result .headline.fail { color: var(--wrong); }
+  [hidden] { display: none !important; }
   #result .sub { color: var(--dim); font-size: 0.9rem; margin-top: 0.3rem; }
   .hint { color: var(--dim); font-size: 0.75rem; margin-top: 1rem; text-align: center; }
   kbd {
@@ -224,14 +232,21 @@
 </div>
 
 <div class="controls">
+  <select id="mode">
+    <option value="words" selected>Word rush</option>
+    <option value="challenge">Longest word</option>
+  </select>
   <select id="duration">
     <option value="15">15s</option>
     <option value="30">30s</option>
     <option value="60" selected>60s</option>
     <option value="120">120s</option>
   </select>
+  <select id="challengeSecs" hidden></select>
   <button id="restart">Restart</button>
 </div>
+
+<div id="challengeNote" class="hint" hidden>Type all 45 letters of the lung-disease word before time runs out. Wrong keys don't advance you.</div>
 
 <div id="result"></div>
 <div class="hint"><span class="desktop-only">Press <kbd>Tab</kbd> or click Restart for a new round. </span>Best WPM this session: <span id="best">—</span></div>
@@ -263,7 +278,19 @@
   const resultEl = document.getElementById("result");
   const restartBtn = document.getElementById("restart");
   const durationSel = document.getElementById("duration");
+  const modeSel = document.getElementById("mode");
+  const challengeSecsSel = document.getElementById("challengeSecs");
+  const challengeNote = document.getElementById("challengeNote");
   const bestEl = document.getElementById("best");
+
+  const CHALLENGE_WORD = "pneumonoultramicroscopicsilicovolcanoconiosis";
+  for (let s = 1; s <= 30; s++) {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s + "s";
+    if (s === 15) opt.selected = true;
+    challengeSecsSel.appendChild(opt);
+  }
 
   // The ghost input always holds one sentinel char so that Backspace on
   // mobile keyboards (which often report key "Unidentified") still
@@ -281,6 +308,7 @@
   let tick = null;
   let finished = false;
   let bestWpm = 0;
+  let mode = "words";
 
   function armGhost() {
     ghost.value = SENTINEL;
@@ -310,15 +338,27 @@
   function reset() {
     clearInterval(tick);
     tick = null;
-    duration = parseInt(durationSel.value, 10);
+    mode = modeSel.value;
+    durationSel.hidden = mode === "challenge";
+    challengeSecsSel.hidden = mode !== "challenge";
+    challengeNote.hidden = mode !== "challenge";
+    duration = mode === "challenge"
+      ? parseInt(challengeSecsSel.value, 10)
+      : parseInt(durationSel.value, 10);
     timeLeft = duration;
     pos = 0;
     typedTotal = 0;
     typedCorrect = 0;
     startTime = null;
     finished = false;
-    // Enough words that a fast typist won't run out (~250 wpm ceiling)
-    target = generateText(Math.max(50, Math.ceil(duration * 5)));
+    if (mode === "challenge") {
+      target = CHALLENGE_WORD;
+      textEl.classList.add("challenge");
+    } else {
+      // Enough words that a fast typist won't run out (~250 wpm ceiling)
+      target = generateText(Math.max(50, Math.ceil(duration * 5)));
+      textEl.classList.remove("challenge");
+    }
     render();
     wpmEl.textContent = "0";
     accEl.textContent = "100%";
@@ -349,16 +389,29 @@
       timeLeft--;
       timerEl.textContent = timeLeft;
       updateStats();
-      if (timeLeft <= 0) finish();
+      if (timeLeft <= 0) finish(false);
     }, 1000);
   }
 
-  function finish() {
+  function finish(completed) {
     clearInterval(tick);
     tick = null;
     finished = true;
     const wpm = currentWpm();
     const acc = typedTotal === 0 ? 100 : Math.round((typedCorrect / typedTotal) * 100);
+    if (mode === "challenge") {
+      if (completed) {
+        const secs = ((Date.now() - startTime) / 1000).toFixed(2);
+        resultEl.innerHTML =
+          '<div class="headline">🏆 Conquered in ' + secs + "s</div>" +
+          '<div class="sub">all 45 letters · ' + wpm + " WPM · " + acc + "% key accuracy</div>";
+      } else {
+        resultEl.innerHTML =
+          '<div class="headline fail">Time’s up</div>' +
+          '<div class="sub">' + pos + " of " + target.length + " letters — press Restart to try again</div>";
+      }
+      return;
+    }
     if (wpm > bestWpm) {
       bestWpm = wpm;
       bestEl.textContent = bestWpm + " WPM";
@@ -384,6 +437,17 @@
     if (finished) return;
     if (!startTime) startTimer();
 
+    // Challenge mode: wrong keys flash red but don't advance, so
+    // finishing means the word was actually spelled correctly.
+    if (mode === "challenge" && key !== target[pos]) {
+      typedTotal++;
+      const span = chars[pos];
+      span.classList.add("flash");
+      setTimeout(() => span.classList.remove("flash"), 200);
+      updateStats();
+      return;
+    }
+
     typedTotal++;
     if (key === target[pos]) {
       typedCorrect++;
@@ -394,7 +458,7 @@
     chars[pos].classList.remove("current");
     pos++;
 
-    if (pos >= target.length) { finish(); return; }
+    if (pos >= target.length) { finish(true); return; }
     chars[pos].classList.add("current");
     scrollCurrentIntoView();
     updateStats();
@@ -455,6 +519,8 @@
   });
   restartBtn.addEventListener("click", reset);
   durationSel.addEventListener("change", reset);
+  modeSel.addEventListener("change", reset);
+  challengeSecsSel.addEventListener("change", reset);
 
   reset();
 })();
