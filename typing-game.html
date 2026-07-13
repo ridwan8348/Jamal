@@ -246,7 +246,7 @@
   <button id="restart">Restart</button>
 </div>
 
-<div id="challengeNote" class="hint" hidden>Type all 45 letters of the lung-disease word before time runs out. Wrong keys don't advance you.</div>
+<div id="challengeNote" class="hint" hidden>Spell the 45-letter lung-disease word from memory before time runs out. The word is hidden — each letter reveals only after you type it correctly, and wrong keys don't advance you.</div>
 
 <div id="result"></div>
 <div class="hint"><span class="desktop-only">Press <kbd>Tab</kbd> or click Restart for a new round. </span>Best WPM this session: <span id="best">—</span></div>
@@ -323,12 +323,17 @@
     return out.join(" ");
   }
 
+  // In challenge mode the word is hidden: every letter renders as a
+  // dot and is only revealed once typed correctly.
+  const MASK = "•";
+
   function render() {
     textEl.innerHTML = "";
     chars = [];
+    const masked = mode === "challenge";
     for (const ch of target) {
       const span = document.createElement("span");
-      span.textContent = ch;
+      span.textContent = masked ? MASK : ch;
       textEl.appendChild(span);
       chars.push(span);
     }
@@ -429,6 +434,7 @@
       pos--;
       chars[pos].classList.remove("correct", "wrong");
       chars[pos].classList.add("current");
+      if (mode === "challenge") chars[pos].textContent = MASK;
       scrollCurrentIntoView();
     }
   }
@@ -452,6 +458,7 @@
     if (key === target[pos]) {
       typedCorrect++;
       chars[pos].classList.add("correct");
+      if (mode === "challenge") chars[pos].textContent = key;
     } else {
       chars[pos].classList.add("wrong");
     }
