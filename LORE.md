@@ -55,20 +55,4 @@ everyone.
 
 Jerry is happy.
 
-## Chapter VI — Jerry Is ⬆️
-
-Look at any picture of the battle. The huge possessed monster fills the
-frame, all icicle grin and root-tentacles — but check the **top of the
-picture**. That little snowman up there, three snowballs tall, crooked
-carrot nose, top hat straightened? That's Jerry. The original.
-
-After the Hollow Soul was destroyed, Jerry waddled straight back up to his
-spot at the very top of Frostfall Hill — the same spot the village kids
-always build him in, the highest point on the hill, top of every picture
-ever taken of it.
-
-So whenever anyone shows you the battle: the monster is in front, but
-Jerry — the real Jerry, the happy Jerry — is up top, smiling at absolutely
-everyone.
-
-**Jerry is ⬆️. (Up there. Top of the picture.)**
+The End.

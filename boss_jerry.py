@@ -6,8 +6,7 @@ A zero-dependency terminal boss battle. Full backstory in LORE.md.
 The lore, short version:
     Jerry got possessed by the Hollow Soul.
     We kill the soul (NOT Jerry -- aim for the dark shard on his chest).
-    Jerry happy.
-    Jerry is UP -- back at his spot at the top of the picture.
+    Jerry happy. The end.
 
 Play it:
     python3 boss_jerry.py            # interactive fight
@@ -68,21 +67,6 @@ FREE_JERRY = r"""
              JERRY (HAPPY)
 """
 
-JERRY_UP_TOP = r"""
-        ___
-       |___|
-      _|___|_
-     /  o o  \     <- THAT'S JERRY, UP THERE
-     |   >   |        (top of the picture,
-      \ \_/ /          where he's always been)
-    ~(snowflake)~
-      (  o  )
-     /~~~~~~~\__
-    /           \____
-   /   Frostfall     \______
-  /       Hill              \______
- /___________________________________\
-"""
 
 
 # --------------------------------------------------------------------------
@@ -317,17 +301,8 @@ def ending() -> None:
     say('"...you came back for me," Jerry says, and smiles')
     say("at absolutely everyone.")
 
-    banner("JERRY IS UP")
-    say(JERRY_UP_TOP, pause=0)
-    say("Jerry waddles straight back UP to his spot at the very top")
-    say("of Frostfall Hill -- the highest point, top of every picture")
-    say("anyone has ever taken of it.")
     say("")
-    say("So when they show you the battle: monster in front,")
-    say("but Jerry -- the real, happy Jerry -- is up top,")
-    say("smiling at absolutely everyone.")
-    say("")
-    say("      J E R R Y   I S   ^ UP THERE ^")
+    say("        J E R R Y   H A P P Y")
     say("")
 
 
