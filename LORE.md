@@ -24,6 +24,12 @@ holding on.
 
 ## Chapter III — The Fight
 
+They found him in a frozen arena beneath the hill, three hundred hearts
+strong, under a name the Hollow Soul carved into the ice itself:
+**FROZEN & FORGOTTEN**. The Soul had armored each of Jerry's twisted arms
+in a shield of black ice — seven strikes to shatter apiece — and until
+both shields were down, no blade could touch the anchor.
+
 Heroes came. Most of them made the same mistake: they attacked Jerry's body.
 Every snowball you knock off of Jerry just hurts *Jerry* — the Hollow Soul
 doesn't feel a thing, and it laughs with Jerry's stolen mouth.

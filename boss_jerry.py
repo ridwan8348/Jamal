@@ -131,14 +131,14 @@ class Fighter:
 
 
 BOSS_ATTACKS = [
-    ("Root Lash", 12, "gnarled root-tentacles whip across the hill!"),
-    ("Blizzard Breath", 9, "a howling cone of razor snow!"),
-    ("Icicle Grin", 15, "he SMILES at you. The icicles launch."),
+    ("Root Lash", 12, "gnarled root-tentacles whip across the ice!"),
+    ("Blizzard Breath", 8, "a howling cone of razor snow!"),
+    ("Icicle Grin", 14, "he SMILES at you. The icicles launch."),
 ]
 
 SOUL_ATTACKS = [
     ("Wail of the Deep", 11, "a thousand-year scream rattles your bones!"),
-    ("Grasping Dark", 14, "cold root-shadows claw at your heels!"),
+    ("Grasping Dark", 15, "cold root-shadows claw at your heels!"),
 ]
 
 
@@ -160,7 +160,7 @@ def choose(prompt: str, options: list[str], auto_pick: int,
 def boss_turn(rng: random.Random, hero: Fighter, attacks, guarding: bool,
               attacker: str) -> None:
     name, dmg, flavor = rng.choice(attacks)
-    dealt = max(dmg // 3, 2) if guarding else dmg
+    dealt = max(dmg // 4, 2) if guarding else dmg
     hero.hit(dealt)
     say(f"\n{attacker} uses {name.upper()}! {flavor}")
     if guarding:
@@ -171,49 +171,87 @@ def boss_turn(rng: random.Random, hero: Fighter, attacks, guarding: bool,
 
 def phase_one(rng: random.Random, hero: Fighter, auto: bool) -> bool:
     """Fight the possession. Returns True if the shard breaks (good path)."""
-    shard = Fighter("Soul Shard", 60)
-    body = Fighter("Jerry's body", 50)
+    shard = Fighter("Soul Shard", 300)
+    body = Fighter("Jerry's body", 200)
+    shields = {"LEFT": 7, "RIGHT": 7}
 
-    banner("PHASE 1 -- JERRY, THE POSSESSED SNOWMAN")
+    banner("PHASE 1 -- JERRY THE SNOWMAN: FROZEN & FORGOTTEN")
     say(POSSESSED_JERRY, pause=0)
     say('"jerry isn\'t home right now," the snowman grins.')
     say("A dark coal shard pulses on his chest where his")
     say("heart-button used to be. That's the anchor. That's the target.")
+    say("But both arms are armored in black ice -- a shield on each")
+    say("limb, 7 hits apiece, before the shard takes any damage.")
 
     while shard.alive and hero.alive and body.alive:
         say("")
         say(bar("You", hero.hp, hero.hp_max), pause=0)
         say(bar("Soul Shard", shard.hp, shard.hp_max), pause=0)
         say(bar("Jerry", body.hp, body.hp_max), pause=0)
+        for side, hits in shields.items():
+            state = "DESTROYED" if hits == 0 else f"{hits} hits left"
+            say(f"{side + ' ARM SHIELD':>16}  [{state}]", pause=0)
         say("")
 
-        pick = choose("> your move:", [
-            "Strike the SOUL SHARD (the right target)",
-            "Attack Jerry's body (please don't)",
-            "Guard",
-        ], auto_pick=2 if hero.hp <= 25 else 0, auto=auto)
+        shields_up = any(shields.values())
+        options, keys = [], []
+        for side, hits in shields.items():
+            if hits > 0:
+                options.append(f"Smash the {side} arm shield ({hits} hits left)")
+                keys.append("smash" + side)
+        if shields_up:
+            options.append("Strike the SOUL SHARD (blocked by the shields!)")
+        else:
+            options.append("Strike the SOUL SHARD (the right target)")
+        keys.append("shard")
+        if not shields_up:
+            options.append("Attack Jerry's body (please don't)")
+            keys.append("body")
+        options.append("Guard")
+        keys.append("guard")
+
+        if hero.hp <= 40:
+            auto_pick = keys.index("guard")
+        elif shields_up:
+            auto_pick = 0
+        else:
+            auto_pick = keys.index("shard")
+        pick = keys[choose("> your move:", options, auto_pick, auto=auto)]
 
         guarding = False
-        if pick == 0:
-            dmg = rng.randint(9, 16)
-            shard.hit(dmg)
-            say(f"\nYou drive your blade at the dark shard -- {dmg} damage!")
-            say("The Hollow Soul SHRIEKS through Jerry's stolen mouth.")
-        elif pick == 1:
-            dmg = rng.randint(10, 18)
+        if pick.startswith("smash"):
+            side = pick[len("smash"):]
+            hits = min(rng.randint(1, 3), shields[side])
+            shields[side] -= hits
+            say(f"\nYou batter the {side} arm shield -- {hits} hit(s)!")
+            if shields[side] == 0:
+                say(f"*** {side} ARM SHIELD DESTROYED ***")
+                if not any(shields.values()):
+                    say("Both shields are down. The dark shard is exposed!")
+        elif pick == "shard":
+            if shields_up:
+                say("\nYour blade glances off the black ice. BLOCKED.")
+                say("(Smash both arm shields first -- 7 hits each.)")
+            else:
+                dmg = rng.randint(30, 55)
+                shard.hit(dmg)
+                say(f"\nYou drive your blade at the dark shard -- {dmg} damage!")
+                say("The Hollow Soul SHRIEKS through Jerry's stolen mouth.")
+        elif pick == "body":
+            dmg = rng.randint(40, 70)
             body.hit(dmg)
             say(f"\nYou knock snow off Jerry -- {dmg} damage... to JERRY.")
             say("The Hollow Soul laughs. Jerry's little scarf droops.")
             say("(Strike the soul, not the snowman!)")
         else:
             guarding = True
-            heal = rng.randint(4, 8)
+            heal = rng.randint(12, 20)
             hero.hp = min(hero.hp + heal, hero.hp_max)
             say(f"\nYou raise your guard and catch your breath (+{heal} HP).")
 
         if not shard.alive:
             break
-        boss_turn(rng, hero, BOSS_ATTACKS, guarding, "Possessed Jerry")
+        boss_turn(rng, hero, BOSS_ATTACKS, guarding, "Jerry the Snowman")
 
     if not body.alive:
         say("\nJerry's body collapses into a sad, quiet pile of snow.")
@@ -231,7 +269,7 @@ def phase_one(rng: random.Random, hero: Fighter, auto: bool) -> bool:
 
 def phase_two(rng: random.Random, hero: Fighter, auto: bool) -> bool:
     """We kill the soul. Returns True if the Hollow Soul is destroyed."""
-    soul = Fighter("Hollow Soul", 45)
+    soul = Fighter("Hollow Soul", 150)
 
     banner("PHASE 2 -- WE KILL THE SOUL")
     say(HOLLOW_SOUL, pause=0)
@@ -247,16 +285,16 @@ def phase_two(rng: random.Random, hero: Fighter, auto: bool) -> bool:
         pick = choose("> your move:", [
             "Attack the Hollow Soul",
             "Guard",
-        ], auto_pick=1 if hero.hp <= 25 else 0, auto=auto)
+        ], auto_pick=1 if hero.hp <= 40 else 0, auto=auto)
 
         guarding = False
         if pick == 0:
-            dmg = rng.randint(10, 17)
+            dmg = rng.randint(30, 55)
             soul.hit(dmg)
             say(f"\nYou cut through the cold light -- {dmg} damage!")
         else:
             guarding = True
-            heal = rng.randint(4, 8)
+            heal = rng.randint(12, 20)
             hero.hp = min(hero.hp + heal, hero.hp_max)
             say(f"\nYou raise your guard and catch your breath (+{heal} HP).")
 
@@ -308,7 +346,7 @@ def main(argv: list[str] | None = None) -> int:
 
     FAST = opts.fast or opts.auto
     rng = random.Random(opts.seed)
-    hero = Fighter("You", 70)
+    hero = Fighter("You", 120)
 
     banner("FROSTFALL HILL -- MIDWINTER, AT NIGHT")
     say("Jerry was the happiest snowman on Frostfall Hill.")
@@ -320,7 +358,7 @@ def main(argv: list[str] | None = None) -> int:
             banner("YOU FELL. FROSTFALL HILL STAYS COLD. TRY AGAIN.")
         return 1
 
-    heal = min(25, hero.hp_max - hero.hp)
+    heal = min(60, hero.hp_max - hero.hp)
     hero.hp += heal
     say(f"\nWith the shard broken, warmth returns to the hill (+{heal} HP).")
 

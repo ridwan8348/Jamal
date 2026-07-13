@@ -16,6 +16,7 @@
     --soul: #a58cff;
     --hurt: #ff5d5d;
     --ok: #6fe3a5;
+    --shield: #9fc3ec;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -44,12 +45,40 @@
   }
   h1 {
     margin: 4px 0 0;
-    font-size: clamp(26px, 7vw, 34px);
+    font-size: clamp(24px, 6.5vw, 32px);
     font-weight: 900; font-stretch: condensed;
     letter-spacing: 0.06em; text-transform: uppercase;
     color: var(--snow); text-wrap: balance;
   }
   h1 .vs { color: var(--ice); }
+
+  /* ---------- boss plate (like the real fight) ---------- */
+  #plate {
+    border: 1px solid var(--line); border-radius: 14px;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    padding: 10px 14px 12px; display: flex; flex-direction: column; gap: 6px;
+  }
+  #plate .toprow { display: flex; align-items: baseline; gap: 10px; }
+  #plate .heart { font-size: 20px; line-height: 1; }
+  #plate .hp { font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--snow); min-width: 58px; }
+  #plate .bossname { font-size: 15px; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; color: var(--snow); margin-left: auto; }
+  #plate .track { position: relative; height: 18px; border-radius: 5px; background: #0d1626; border: 1px solid var(--line); overflow: hidden; }
+  #plate .fill { height: 100%; background: linear-gradient(90deg, #4d9fd8, var(--ice)); transition: width 0.4s ease; }
+  #plate .track::after {
+    content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(90deg, transparent 0, transparent calc(20% - 2px), var(--sky) calc(20% - 2px), var(--sky) 20%);
+    pointer-events: none;
+  }
+  #plate .sub { font-size: 11px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ice); }
+  #shields { display: flex; gap: 8px; margin-top: 2px; }
+  .chip {
+    flex: 1; text-align: center; font-size: 11px; font-weight: 800;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 4px;
+    color: var(--shield); background: #0d1626;
+    font-variant-numeric: tabular-nums;
+  }
+  .chip.broken { color: var(--hurt); border-color: var(--hurt); text-decoration: line-through; }
 
   /* ---------- scene ---------- */
   #scene {
@@ -58,8 +87,8 @@
     border: 1px solid var(--line);
     border-radius: 14px;
     background:
-      radial-gradient(120% 90% at 50% -20%, #1a2c4e 0%, transparent 60%),
-      linear-gradient(180deg, #0d1830 0%, #122040 78%, #e7eefb 78%, #d7e3f5 100%);
+      radial-gradient(120% 90% at 50% -20%, #1c3767 0%, transparent 60%),
+      linear-gradient(180deg, #0f1e3d 0%, #16295a 78%, #9cc4ee 78%, #7fb0e4 100%);
     overflow: hidden;
   }
   #scene.shake { animation: shake 0.35s; }
@@ -84,17 +113,29 @@
     background: #f2f6ff; box-shadow: 0 0 26px 6px rgba(200,220,255,0.35);
   }
 
-  /* ---------- possessed jerry (pure CSS) ---------- */
+  /* ---------- possessed jerry, frozen & forgotten (pure CSS) ---------- */
   #jerry { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); width: 190px; height: 240px; transition: transform 2.5s ease, opacity 1s ease; }
   #jerry .tent {
     position: absolute; width: 120px; height: 120px;
-    border: 14px solid transparent; border-top-color: #7a5230; border-right-color: #7a5230;
+    border: 14px solid transparent; border-top-color: #1c2440; border-right-color: #1c2440;
     border-radius: 50%; top: 60px;
   }
   #jerry .tent.l { left: -78px; transform: rotate(210deg); }
   #jerry .tent.r { right: -78px; transform: rotate(-30deg) scaleX(-1); }
+  #jerry .shield-orb {
+    position: absolute; top: 116px; width: 34px; height: 40px;
+    border-radius: 50% 50% 50% 50% / 42% 42% 58% 58%;
+    background: radial-gradient(circle at 40% 30%, rgba(220,240,255,0.9), rgba(124,196,255,0.45));
+    border: 2px solid var(--ice); box-shadow: 0 0 12px 2px rgba(124,196,255,0.5);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 900; color: #0d1626; font-variant-numeric: tabular-nums;
+  }
+  #jerry .shield-orb.l { left: -92px; }
+  #jerry .shield-orb.r { right: -92px; }
+  #jerry .shield-orb.gone { display: none; }
   .ball { position: absolute; left: 50%; transform: translateX(-50%); border-radius: 50%;
     background: radial-gradient(circle at 38% 30%, #ffffff 0%, #e9f1fb 55%, #c9d9ee 100%); }
+  #jerry .ball { background: radial-gradient(circle at 38% 30%, #e4f1ff 0%, #b2d2f4 55%, #7ca6dd 100%); }
   #jerry .b1 { width: 170px; height: 120px; bottom: 0; }
   #jerry .b2 { width: 128px; height: 96px; bottom: 92px; }
   #jerry .head { width: 92px; height: 84px; bottom: 168px; }
@@ -168,14 +209,12 @@
 
   /* ---------- HUD ---------- */
   #hud { display: flex; flex-direction: column; gap: 8px; }
-  .row { display: grid; grid-template-columns: 86px 1fr 64px; align-items: center; gap: 10px; }
+  .row { display: grid; grid-template-columns: 86px 1fr 72px; align-items: center; gap: 10px; }
   .row .name { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
   .track { height: 14px; border-radius: 7px; background: #0d1626; border: 1px solid var(--line); overflow: hidden; }
   .fill { height: 100%; border-radius: 7px; transition: width 0.4s ease; }
   .row.you .fill { background: linear-gradient(90deg, #3fae74, var(--ok)); }
-  .row.shard .fill { background: linear-gradient(90deg, #6f57c9, var(--soul)); }
   .row.jerry .fill { background: linear-gradient(90deg, #4d9fd8, var(--ice)); }
-  .row.soul .fill { background: linear-gradient(90deg, #6f57c9, var(--soul)); }
   .row .num { font-variant-numeric: tabular-nums; font-size: 13px; text-align: right; color: var(--ink); }
 
   /* ---------- actions ---------- */
@@ -193,6 +232,7 @@
   button:disabled { opacity: 0.45; cursor: default; }
   button .hint { display: block; font-size: 12px; font-weight: 500; color: var(--dim); margin-top: 2px; }
   button.primary { border-color: var(--soul); }
+  button.shieldbtn { border-color: var(--ice); }
   button.danger .hint { color: var(--hurt); }
   button.restart { border-color: var(--ice); text-align: center; }
 
@@ -209,6 +249,7 @@
   #log .bad { color: var(--hurt); }
   #log .good { color: var(--ok); }
   #log .vio { color: var(--soul); }
+  #log .icy { color: var(--ice); }
 
   /* floating damage numbers */
   .dmg {
@@ -216,6 +257,19 @@
     animation: rise 0.9s ease-out forwards; text-shadow: 0 2px 6px rgba(0,0,0,0.6);
   }
   @keyframes rise { to { transform: translateY(-46px); opacity: 0; } }
+  .callout {
+    position: absolute; left: 50%; top: 38%; transform: translateX(-50%);
+    font-size: 19px; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--hurt); text-shadow: 0 2px 8px rgba(0,0,0,0.8); pointer-events: none;
+    animation: callout 1.6s ease-out forwards; white-space: nowrap;
+  }
+  @keyframes callout {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.6); }
+    15% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+    30% { transform: translateX(-50%) scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+  }
 
   /* ending banner */
   #banner {
@@ -234,20 +288,35 @@
   @media (prefers-reduced-motion: reduce) {
     .flake, #soulboss, .shard { animation: none !important; }
     #scene.shake { animation: none; }
-    .dmg { animation-duration: 0.01s; }
+    .dmg, .callout { animation-duration: 0.01s; }
   }
 </style>
 
 <div id="game">
   <header>
-    <div class="eyebrow">Frostfall Hill &middot; Midwinter, at night</div>
-    <h1>Jerry <span class="vs">vs</span> the Hollow Soul</h1>
+    <div class="eyebrow">Frostfall Hill &middot; the frozen arena</div>
+    <h1>Jerry <span class="vs">the</span> Snowman</h1>
   </header>
+
+  <div id="plate">
+    <div class="toprow">
+      <span class="heart">🤍</span><span class="hp" id="plateHp">300</span>
+      <span class="bossname" id="plateName">Jerry the Snowman</span>
+    </div>
+    <div class="track"><div class="fill" id="plateFill" style="width:100%"></div></div>
+    <div class="sub" id="plateSub">Frozen &amp; Forgotten</div>
+    <div id="shields">
+      <div class="chip" id="chipL">Left arm shield &middot; <span id="hitsL">7</span> hits</div>
+      <div class="chip" id="chipR">Right arm shield &middot; <span id="hitsR">7</span> hits</div>
+    </div>
+  </div>
 
   <div id="scene">
     <div class="moon"></div>
     <div id="jerry">
       <div class="tent l"></div><div class="tent r"></div>
+      <div class="shield-orb l" id="orbL">7</div>
+      <div class="shield-orb r" id="orbR">7</div>
       <div class="ball b1"></div><div class="ball b2"></div><div class="ball head"></div>
       <div class="hat-top"></div><div class="hat-brim"></div>
       <div class="eye l"></div><div class="eye r"></div>
@@ -273,9 +342,7 @@
 
   <div id="hud">
     <div class="row you"><span class="name">You</span><div class="track"><div class="fill" id="hpYou"></div></div><span class="num" id="nYou"></span></div>
-    <div class="row shard" id="rowShard"><span class="name">Soul Shard</span><div class="track"><div class="fill" id="hpShard"></div></div><span class="num" id="nShard"></span></div>
     <div class="row jerry" id="rowJerry"><span class="name">Jerry</span><div class="track"><div class="fill" id="hpJerry"></div></div><span class="num" id="nJerry"></span></div>
-    <div class="row soul" id="rowSoul" style="display:none"><span class="name">Hollow Soul</span><div class="track"><div class="fill" id="hpSoul"></div></div><span class="num" id="nSoul"></span></div>
   </div>
 
   <div id="actions"></div>
@@ -293,28 +360,36 @@
 
   var S;
   function reset() {
-    S = { you: 70, youMax: 70, shard: 60, shardMax: 60, body: 50, bodyMax: 50,
-          soul: 45, soulMax: 45, phase: 1, busy: false, over: false };
-    jerryEl.style.display = ""; jerryEl.style.transform = "translateX(-50%)"; jerryEl.style.opacity = "1";
+    S = { you: 120, youMax: 120, shard: 300, shardMax: 300, body: 200, bodyMax: 200,
+          soul: 150, soulMax: 150, shieldL: 7, shieldR: 7,
+          phase: 1, busy: false, over: false };
+    jerryEl.style.display = ""; jerryEl.style.opacity = "1";
     soulEl.style.display = "none"; happyEl.style.display = "none";
     happyEl.style.transform = "translateX(-50%)"; happyEl.style.opacity = "1";
     bannerEl.style.display = "none";
-    $("rowShard").style.display = ""; $("rowJerry").style.display = "";
-    $("rowSoul").style.display = "none";
+    $("orbL").classList.remove("gone"); $("orbR").classList.remove("gone");
+    $("chipL").classList.remove("broken"); $("chipR").classList.remove("broken");
+    $("chipL").innerHTML = 'Left arm shield &middot; <span id="hitsL">7</span> hits';
+    $("chipR").innerHTML = 'Right arm shield &middot; <span id="hitsR">7</span> hits';
+    $("rowJerry").style.display = "";
+    $("plateName").textContent = "Jerry the Snowman";
+    $("plateSub").textContent = "Frozen & Forgotten";
+    $("shields").style.display = "";
     logEl.innerHTML = "";
     log("Jerry was the happiest snowman on Frostfall Hill. Then something old crawled up out of the frozen ground.");
-    log("A dark shard pulses on his chest. That's the anchor. That's the target.", "vio");
+    log("Both arms are armored in black ice. Smash the shields — 7 hits each — before the shard takes any damage.", "icy");
     renderHud(); renderActions();
   }
 
   var ri = function (a, b) { return a + Math.floor(Math.random() * (b - a + 1)); };
+  var shieldsUp = function () { return S.shieldL > 0 || S.shieldR > 0; };
 
   function log(msg, cls) {
     var p = document.createElement("p");
     if (cls) p.className = cls;
     p.textContent = msg;
     logEl.insertBefore(p, logEl.firstChild);
-    while (logEl.children.length > 30) logEl.removeChild(logEl.lastChild);
+    while (logEl.children.length > 40) logEl.removeChild(logEl.lastChild);
   }
 
   function setBar(fillId, numId, hp, max) {
@@ -323,9 +398,18 @@
   }
   function renderHud() {
     setBar("hpYou", "nYou", S.you, S.youMax);
-    setBar("hpShard", "nShard", S.shard, S.shardMax);
     setBar("hpJerry", "nJerry", S.body, S.bodyMax);
-    setBar("hpSoul", "nSoul", S.soul, S.soulMax);
+    if (S.phase === 1) {
+      $("plateHp").textContent = Math.max(S.shard, 0);
+      $("plateFill").style.width = (Math.max(S.shard, 0) / S.shardMax * 100) + "%";
+    } else {
+      $("plateHp").textContent = Math.max(S.soul, 0);
+      $("plateFill").style.width = (Math.max(S.soul, 0) / S.soulMax * 100) + "%";
+    }
+    var hl = $("hitsL"), hr = $("hitsR");
+    if (hl) hl.textContent = S.shieldL;
+    if (hr) hr.textContent = S.shieldR;
+    $("orbL").textContent = S.shieldL; $("orbR").textContent = S.shieldR;
   }
 
   function dmgNum(x, y, text, color) {
@@ -334,6 +418,12 @@
     d.style.left = x + "%"; d.style.top = y + "%"; d.style.color = color;
     scene.appendChild(d);
     setTimeout(function () { d.remove(); }, 900);
+  }
+  function callout(text) {
+    var d = document.createElement("div");
+    d.className = "callout"; d.textContent = text;
+    scene.appendChild(d);
+    setTimeout(function () { d.remove(); }, 1600);
   }
 
   function flash(el) {
@@ -346,21 +436,21 @@
   }
 
   var BOSS_ATTACKS = [
-    ["Root Lash", 12, "gnarled root-tentacles whip across the hill!"],
-    ["Blizzard Breath", 9, "a howling cone of razor snow!"],
-    ["Icicle Grin", 15, "he SMILES at you. The icicles launch."]
+    ["Root Lash", 12, "gnarled root-tentacles whip across the ice!"],
+    ["Blizzard Breath", 8, "a howling cone of razor snow!"],
+    ["Icicle Grin", 14, "he SMILES at you. The icicles launch."]
   ];
   var SOUL_ATTACKS = [
     ["Wail of the Deep", 11, "a thousand-year scream rattles your bones!"],
-    ["Grasping Dark", 14, "cold root-shadows claw at your heels!"]
+    ["Grasping Dark", 15, "cold root-shadows claw at your heels!"]
   ];
 
   function bossTurn(guarding) {
     var pool = S.phase === 1 ? BOSS_ATTACKS : SOUL_ATTACKS;
     var atk = pool[ri(0, pool.length - 1)];
-    var dealt = guarding ? Math.max(Math.floor(atk[1] / 3), 2) : atk[1];
+    var dealt = guarding ? Math.max(Math.floor(atk[1] / 4), 2) : atk[1];
     S.you = Math.max(S.you - dealt, 0);
-    var who = S.phase === 1 ? "Possessed Jerry" : "The Hollow Soul";
+    var who = S.phase === 1 ? "Jerry the Snowman" : "The Hollow Soul";
     log(who + " uses " + atk[0].toUpperCase() + "! " + atk[2], "bad");
     log(guarding ? "You brace behind your guard — only " + dealt + " damage." : "You take " + dealt + " damage!", guarding ? "good" : "bad");
     shakeScene();
@@ -370,28 +460,49 @@
     S.busy = false; renderActions();
   }
 
+  function smashShield(side) {
+    var hits = ri(1, 3);
+    var label = side === "L" ? "LEFT" : "RIGHT";
+    if (side === "L") { hits = Math.min(hits, S.shieldL); S.shieldL -= hits; }
+    else { hits = Math.min(hits, S.shieldR); S.shieldR -= hits; }
+    log("You batter the " + label + " arm shield — " + hits + (hits === 1 ? " hit!" : " hits!"), "icy");
+    flash(jerryEl);
+    dmgNum(side === "L" ? 22 : 78, 44, "-" + hits, "var(--ice)");
+    var broke = side === "L" ? S.shieldL === 0 : S.shieldR === 0;
+    if (broke) {
+      callout(label + " ARM SHIELD DESTROYED");
+      log(label + " ARM SHIELD DESTROYED!", "bad");
+      $("orb" + side).classList.add("gone");
+      $("chip" + side).classList.add("broken");
+      $("chip" + side).textContent = label.charAt(0) + label.slice(1).toLowerCase() + " arm shield · DESTROYED";
+      if (!shieldsUp()) log("Both shields are down. The dark shard is exposed — strike the soul!", "vio");
+    }
+  }
+
   function act(kind) {
     if (S.busy || S.over) return;
     S.busy = true; renderActions();
     var guarding = false;
 
-    if (kind === "shard") {
-      var d = ri(9, 16); S.shard = Math.max(S.shard - d, 0);
+    if (kind === "smashL" || kind === "smashR") {
+      smashShield(kind === "smashL" ? "L" : "R");
+    } else if (kind === "shard") {
+      var d = ri(30, 55); S.shard = Math.max(S.shard - d, 0);
       log("You drive your blade at the dark shard — " + d + " damage!", "vio");
       log("The Hollow Soul SHRIEKS through Jerry's stolen mouth.");
       flash(jerryEl); dmgNum(60, 42, "-" + d, "var(--soul)");
     } else if (kind === "body") {
-      var d2 = ri(10, 18); S.body = Math.max(S.body - d2, 0);
+      var d2 = ri(40, 70); S.body = Math.max(S.body - d2, 0);
       log("You knock snow off Jerry — " + d2 + " damage... to JERRY.", "bad");
       log("The Hollow Soul laughs. Strike the soul, not the snowman!", "vio");
       flash(jerryEl); dmgNum(40, 30, "-" + d2, "var(--ice)");
     } else if (kind === "soul") {
-      var d3 = ri(10, 17); S.soul = Math.max(S.soul - d3, 0);
+      var d3 = ri(30, 55); S.soul = Math.max(S.soul - d3, 0);
       log("You cut through the cold light — " + d3 + " damage!", "vio");
       flash(soulEl); dmgNum(58, 36, "-" + d3, "var(--soul)");
     } else {
       guarding = true;
-      var h = ri(4, 8); S.you = Math.min(S.you + h, S.youMax);
+      var h = ri(12, 20); S.you = Math.min(S.you + h, S.youMax);
       log("You raise your guard and catch your breath (+" + h + " HP).", "good");
       dmgNum(14, 70, "+" + h, "var(--ok)");
     }
@@ -406,14 +517,16 @@
   function shardBreak() {
     log("CRACK. The dark shard splits down the middle!", "good");
     log("The Hollow Soul is RIPPED out of Jerry's body!", "vio");
-    var heal = Math.min(25, S.youMax - S.you); S.you += heal;
+    var heal = Math.min(60, S.youMax - S.you); S.you += heal;
     log("Warmth returns to the hill (+" + heal + " HP).", "good");
     S.phase = 2;
     jerryEl.style.display = "none"; soulEl.style.display = "block";
-    $("rowShard").style.display = "none"; $("rowJerry").style.display = "none";
-    $("rowSoul").style.display = "";
+    $("rowJerry").style.display = "none";
+    $("plateName").textContent = "The Hollow Soul";
+    $("plateSub").textContent = "No body left to hide in";
+    $("shields").style.display = "none";
     renderHud();
-    log("PHASE 2 — WE KILL THE SOUL. No body left to hide in.", "vio");
+    log("PHASE 2 — WE KILL THE SOUL.", "vio");
     S.busy = false; renderActions();
   }
 
@@ -426,7 +539,7 @@
   }
   function defeat() {
     S.over = true;
-    log("You fall. Frostfall Hill stays cold.", "bad");
+    log("You fall. The frozen arena stays frozen — and forgotten.", "bad");
     banner("You Fell", "The night wins this time. Try again.");
     renderActions();
   }
@@ -454,11 +567,11 @@
     bannerEl.style.display = "flex";
   }
 
-  function btn(label, hint, cls, onclick) {
+  function btn(label, hint, cls, onclick, disabled) {
     var b = document.createElement("button");
     if (cls) b.className = cls;
     b.innerHTML = label + (hint ? '<span class="hint">' + hint + "</span>" : "");
-    b.disabled = S.busy && !S.over;
+    b.disabled = disabled || (S.busy && !S.over);
     b.addEventListener("click", onclick);
     return b;
   }
@@ -470,8 +583,15 @@
       return;
     }
     if (S.phase === 1) {
-      actionsEl.appendChild(btn("Strike the soul shard", "the right target", "primary", function () { act("shard"); }));
-      actionsEl.appendChild(btn("Attack Jerry's body", "please don't", "danger", function () { act("body"); }));
+      if (S.shieldL > 0)
+        actionsEl.appendChild(btn("Smash the LEFT arm shield", S.shieldL + " hits left", "shieldbtn", function () { act("smashL"); }));
+      if (S.shieldR > 0)
+        actionsEl.appendChild(btn("Smash the RIGHT arm shield", S.shieldR + " hits left", "shieldbtn", function () { act("smashR"); }));
+      actionsEl.appendChild(btn("Strike the soul shard",
+        shieldsUp() ? "blocked — break both arm shields first" : "the right target",
+        "primary", function () { act("shard"); }, shieldsUp()));
+      if (!shieldsUp())
+        actionsEl.appendChild(btn("Attack Jerry's body", "please don't", "danger", function () { act("body"); }));
       actionsEl.appendChild(btn("Guard", "brace and recover HP", "", function () { act("guard"); }));
     } else {
       actionsEl.appendChild(btn("Attack the Hollow Soul", "no mercy left to ask for", "primary", function () { act("soul"); }));

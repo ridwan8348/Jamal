@@ -44,10 +44,11 @@ Requires Python 3.8+. No dependencies.
 A zero-dependency terminal boss battle. Full backstory in [LORE.md](LORE.md);
 the short version:
 
-1. Jerry got possessed by the Hollow Soul.
-2. We kill the soul (aim for the dark shard — NOT Jerry).
-3. Jerry happy.
-4. Jerry is ⬆️ — back at his spot at the top of the picture.
+1. Jerry got possessed by the Hollow Soul (300 🤍, FROZEN & FORGOTTEN).
+2. Smash the shield on each arm — 7 hits apiece — to expose the anchor.
+3. We kill the soul (aim for the dark shard — NOT Jerry).
+4. Jerry happy.
+5. Jerry is ⬆️ — back at his spot at the top of the picture.
 
 ```sh
 python3 boss_jerry.py            # interactive fight
